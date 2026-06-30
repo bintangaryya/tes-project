@@ -1,4 +1,4 @@
-import { User, Transaksi, Tabungan, QuestHistory, Wishlist, WishlistHistory } from './types';
+import { User, Transaksi, Tabungan, QuestHistory, Wishlist, WishlistHistory, Settings, Language } from './types';
 
 const KEYS = {
   USER: 'stuku_user',
@@ -6,6 +6,7 @@ const KEYS = {
   TABUNGAN: 'stuku_tabungan',
   QUEST: 'stuku_quest',
   WISHLIST: 'stuku_wishlist',
+  SETTINGS: 'stuku_settings',
 };
 
 export function getUser(): User | null {
@@ -107,4 +108,21 @@ export function deleteWishlist(id: string) {
   const all = getWishlist();
   delete all[id];
   localStorage.setItem(KEYS.WISHLIST, JSON.stringify(all));
+}
+
+export function getSettings(): Settings {
+  if (typeof window === 'undefined') return { darkMode: false, language: 'id', tipsEnabled: true };
+  const data = localStorage.getItem(KEYS.SETTINGS);
+  return data ? JSON.parse(data) : { darkMode: false, language: 'id', tipsEnabled: true };
+}
+
+export function setSettings(settings: Settings) {
+  localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
+}
+
+export function updateSettings(updates: Partial<Settings>) {
+  const current = getSettings();
+  const updated = { ...current, ...updates };
+  setSettings(updated);
+  return updated;
 }

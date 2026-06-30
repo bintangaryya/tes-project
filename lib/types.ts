@@ -50,3 +50,11 @@ export interface Wishlist {
 export interface WishlistHistory {
   [key: string]: Wishlist;
 }
+
+export type Language = 'id' | 'en';
+
+export interface Settings {
+  darkMode: boolean;
+  language: Language;
+  tipsEnabled: boolean;
+}
