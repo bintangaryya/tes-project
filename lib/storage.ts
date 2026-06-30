@@ -1,10 +1,11 @@
-import { User, Transaksi, Tabungan, QuestHistory } from './types';
+import { User, Transaksi, Tabungan, QuestHistory, Wishlist, WishlistHistory } from './types';
 
 const KEYS = {
   USER: 'stuku_user',
   TRANSAKSI: 'stuku_transaksi',
   TABUNGAN: 'stuku_tabungan',
   QUEST: 'stuku_quest',
+  WISHLIST: 'stuku_wishlist',
 };
 
 export function getUser(): User | null {
@@ -65,4 +66,45 @@ export function getTodayKey(): string {
 
 export function formatRupiah(angka: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+}
+
+export function getWishlist(): WishlistHistory {
+  if (typeof window === 'undefined') return {};
+  const data = localStorage.getItem(KEYS.WISHLIST);
+  return data ? JSON.parse(data) : {};
+}
+
+export function setWishlist(wishlist: WishlistHistory) {
+  localStorage.setItem(KEYS.WISHLIST, JSON.stringify(wishlist));
+}
+
+export function getActiveWishlist(): Wishlist | null {
+  const all = getWishlist();
+  const values = Object.values(all);
+  return values.find(w => w.status === 'aktif') || null;
+}
+
+export function getWishlistHistory(): Wishlist[] {
+  const all = getWishlist();
+  return Object.values(all).filter(w => w.status === 'selesai').sort((a, b) => (b.tanggalSelesai || '').localeCompare(a.tanggalSelesai || ''));
+}
+
+export function addWishlist(wishlist: Wishlist) {
+  const all = getWishlist();
+  all[wishlist.id] = wishlist;
+  localStorage.setItem(KEYS.WISHLIST, JSON.stringify(all));
+}
+
+export function updateWishlist(id: string, updates: Partial<Wishlist>) {
+  const all = getWishlist();
+  if (all[id]) {
+    all[id] = { ...all[id], ...updates };
+    localStorage.setItem(KEYS.WISHLIST, JSON.stringify(all));
+  }
+}
+
+export function deleteWishlist(id: string) {
+  const all = getWishlist();
+  delete all[id];
+  localStorage.setItem(KEYS.WISHLIST, JSON.stringify(all));
 }

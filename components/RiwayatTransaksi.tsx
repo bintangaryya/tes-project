@@ -148,14 +148,14 @@ export default function RiwayatTransaksi({ transaksi }: RiwayatTransaksiProps) {
                 outerRadius={80}
                 paddingAngle={5}
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${name} ${((percent as number) * 100).toFixed(0)}%`}
               >
                 {pieData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number) => formatRupiah(value)}
+                formatter={(value) => formatRupiah(value as number)}
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
               />
             </PieChart>
@@ -214,7 +214,7 @@ export default function RiwayatTransaksi({ transaksi }: RiwayatTransaksiProps) {
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} />
                 <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} tickFormatter={formatCurrency} />
                 <Tooltip
-                  formatter={(value: number) => formatRupiah(value)}
+                  formatter={(value) => formatRupiah(value as number)}
                   labelFormatter={(label) => {
                     const item = chartData.find(d => d.name === label);
                     return item?.fullName || label;

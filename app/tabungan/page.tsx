@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getUser, getTabungan, setTabungan, getTransaksi, addTransaksi, deleteTransaksi, formatRupiah } from '@/lib/storage';
+import { getUser, getTabungan, setTabungan, getTransaksi, addTransaksi, deleteTransaksi, formatRupiah, getWishlist, setWishlist, getActiveWishlist, getWishlistHistory, addWishlist, updateWishlist, getTodayKey } from '@/lib/storage';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import RiwayatTransaksi from '@/components/RiwayatTransaksi';
-import { Plus, Trash2, TrendingUp, TrendingDown, Wallet, LayoutDashboard, History } from 'lucide-react';
-import { Transaksi, BiayaWajib } from '@/lib/types';
+import WishlistSection from '@/components/WishlistSection';
+import { Plus, Trash2, TrendingUp, TrendingDown, Wallet, LayoutDashboard, History, Target } from 'lucide-react';
+import { Transaksi, BiayaWajib, Wishlist } from '@/lib/types';
 
-type Tab = 'ringkasan' | 'riwayat';
+type Tab = 'ringkasan' | 'riwayat' | 'wishlist';
 
 export default function TabunganPage() {
   const router = useRouter();
@@ -22,12 +23,16 @@ export default function TabunganPage() {
   const [uangSakuInput, setUangSakuInput] = useState('');
   const [pengeluaranLainInput, setPengeluaranLainInput] = useState('');
   const [biayaWajibBaru, setBiayaWajibBaru] = useState({ nama: '', nominal: '' });
+  const [activeWishlist, setActiveWishlist] = useState<Wishlist | null>(null);
+  const [wishlistHistory, setWishlistHistory] = useState<Wishlist[]>([]);
 
   useEffect(() => {
     const user = getUser();
     if (!user) { router.push('/'); return; }
     setTabunganState(getTabungan());
     setTransaksiList(getTransaksi());
+    setActiveWishlist(getActiveWishlist());
+    setWishlistHistory(getWishlistHistory());
   }, [router]);
 
   const handleAddTransaksi = (e: React.FormEvent) => {
@@ -91,6 +96,7 @@ export default function TabunganPage() {
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: 'ringkasan', label: 'Ringkasan', icon: <LayoutDashboard size={16} /> },
+    { key: 'wishlist', label: 'Target Nabung', icon: <Target size={16} /> },
     { key: 'riwayat', label: 'Riwayat Transaksi', icon: <History size={16} /> },
   ];
 
@@ -251,6 +257,31 @@ export default function TabunganPage() {
 
           {activeTab === 'riwayat' && (
             <RiwayatTransaksi transaksi={transaksi} />
+          )}
+
+          {activeTab === 'wishlist' && (
+            <WishlistSection
+              activeWishlist={activeWishlist}
+              history={wishlistHistory}
+              onUpdate={(id, updates) => {
+                updateWishlist(id, updates);
+                setActiveWishlist(getActiveWishlist());
+                setWishlistHistory(getWishlistHistory());
+              }}
+              onCreate={(wishlist) => {
+                addWishlist(wishlist);
+                setActiveWishlist(getActiveWishlist());
+              }}
+              onComplete={(id) => {
+                const all = getWishlist();
+                if (all[id]) {
+                  all[id] = { ...all[id], status: 'selesai', tanggalSelesai: getTodayKey() };
+                  setWishlist(all);
+                  setActiveWishlist(getActiveWishlist());
+                  setWishlistHistory(getWishlistHistory());
+                }
+              }}
+            />
           )}
         </main>
       </div>

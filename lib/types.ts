@@ -35,3 +35,18 @@ export interface Quest {
 export interface QuestHistory {
   [key: string]: Quest;
 }
+
+export interface Wishlist {
+  id: string;
+  nama: string;
+  budget: number;
+  nominalPerHari: number;
+  hariTercapai: number;
+  status: 'aktif' | 'selesai';
+  tanggalMulai: string;
+  tanggalSelesai?: string;
+}
+
+export interface WishlistHistory {
+  [key: string]: Wishlist;
+}
